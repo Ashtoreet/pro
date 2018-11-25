@@ -7,48 +7,63 @@ import time
 
 # html = 'https://service.nalog.ru/uwsfind.do'
 # html = 'https://service.nalog.ru/bi.do'
-inn = [7, 7, 1, 8, 6, 0, 3, 1, 5, 0]
+inn = # [*, *, *, *, *, *, *, *, *, *]
 driver = webdriver.Chrome()
 html = 'https://service.nalog.ru/zd.do'
 
 
-driver.get(html)
-driver.implicitly_wait(15) # это таймер
+def input_inn_to_form(driver, inn):
+    """ Input inn from variable. """
+    input_inn = driver.find_element_by_id('inn') # find inn form
 
-# тут работает ввод инн из переменной
-input_inn = driver.find_element_by_id('inn')
-for i in inn:
-    driver.implicitly_wait(5)
-    input_inn.send_keys(i)
-
-# s = get_soup(html)
-# capcha(s)
-img_url = driver.find_element_by_tag_name('img').get_attribute('src')
-responce = requests.get(img_url)
-img = Image.open(BytesIO(responce.content))
-img.show()
-
-# тут работает ввод капчи с консоли
-user_input = input('Enter captcha -> ', )
-list_user_input = list(map(int,"".join(map(str, user_input))))
-input_captcha = driver.find_element_by_id('captcha')
-
-for c in list_user_input:
-    driver.implicitly_wait(4)
-    input_captcha.send_keys(c)
+    for i in inn:
+        driver.implicitly_wait(5) # timer
+        input_inn.send_keys(i) # input one by one
 
 
-button = driver.find_element_by_id('btn_send')
-print('нажали', button.click())
-# driver.implicitly_wait(40)
-time.sleep(5)
+def open_img(driver):
+    """ Open image. """
+    img_url = driver.find_element_by_tag_name('img').get_attribute('src')
+    responce = requests.get(img_url)
+    img = Image.open(BytesIO(responce.content))
+    img.show()
 
-value = driver.find_element_by_id('resultData').text.strip()
-msg = driver.find_element_by_id('resultData').get_attribute('outerHTML')
+def enter_cap(driver):
+    """ тут работает ввод капчи с консоли """
+    user_input = input('Enter captcha -> ', ) # get numbers
+    list_user_input = list(map(int,"".join(map(str, user_input)))) # turn to list
+    input_captcha = driver.find_element_by_id('captcha') # find form
 
-if value:
-    print(value)
-else:
-    print('пусто', msg)
+    for c in list_user_input:
+        driver.implicitly_wait(4) #timer
+        input_captcha.send_keys(c) # input one by one
 
-driver.close()
+
+def click_button(driver):
+    button = driver.find_element_by_id('btn_send')
+    print('нажали', button.click())
+
+
+def getting_output(driver):
+    value = driver.find_element_by_id('resultData').text.strip()
+    msg = driver.find_element_by_id('resultData').get_attribute('outerHTML')
+
+    if value:
+        print(value)
+    else:
+        print('пусто', msg)
+
+
+if __name__ == '__main__':
+    driver.get(html)
+    driver.implicitly_wait(15) # это таймер
+
+    input_inn_to_form(driver, inn)
+    open_img(driver)
+    enter_cap(driver)
+    click_button(driver)
+
+    time.sleep(5)
+
+    getting_output(driver)
+    driver.close()
